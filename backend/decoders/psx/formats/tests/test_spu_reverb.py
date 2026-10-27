@@ -105,7 +105,10 @@ def test_process_scales_by_depth_and_keeps_length():
 
 def test_streamed_in_pieces_it_is_the_whole_signal_processed_at_once():
     """`Reverb` carries the delay lines and the resampling across pushes and
-    pulls: any cut of the signal gives `process`'s output exactly."""
+    pulls: any cut of the signal gives `process`'s output, every sample, to
+    the last bits of rounding. Not bit for bit: np.convolve takes its dot
+    products from the platform's BLAS, and Apple's Accelerate (NumPy's on an
+    Intel Mac) rounds them by where an array lies in memory."""
     setting = R.ReverbSetting(_preset(), 0x3000, 0xB000)
     rng = np.random.default_rng(5)
     for rate in (44100, 32000, R.REVERB_RATE):
@@ -123,5 +126,6 @@ def test_streamed_in_pieces_it_is_the_whole_signal_processed_at_once():
         got.append(rev.pull(rev.ready))
         got_l = np.concatenate([a for a, _ in got])
         got_r = np.concatenate([b for _, b in got])
-        assert np.array_equal(got_l, want_l) and np.array_equal(got_r, want_r)
+        assert got_l.shape == want_l.shape and got_r.shape == want_r.shape
+        assert np.abs(got_l - want_l).max() < 1e-6 and np.abs(got_r - want_r).max() < 1e-6
         assert np.abs(want_l).max() > 10
