@@ -107,7 +107,7 @@ jobs:
         run: python tools/smoke.py app/src-tauri/binaries/eternal-silver-asset-viewer-backend-*
 
       - name: Keep the bundles
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.name }}
           if-no-files-found: error
@@ -128,7 +128,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           path: bundles
       # Each platform's notices, named for it: the packages differ by platform.
@@ -140,7 +140,7 @@ jobs:
             n=$(basename "$d")
             mv "$d/notices/THIRD-PARTY-NOTICES.txt" "bundles/THIRD-PARTY-NOTICES-$n.txt"
           done
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           draft: true
           name: Eternal Silver Asset Viewer ${{ github.ref_name }}
