@@ -27,7 +27,7 @@ import sys
 import threading
 from pathlib import Path
 
-VERSION = "0.2.5"
+VERSION = "0.3.0"
 FROZEN = getattr(sys, "frozen", False)     # a PyInstaller sidecar build
 
 

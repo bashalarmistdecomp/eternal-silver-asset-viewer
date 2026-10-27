@@ -1,7 +1,7 @@
 {
   "name": "eternal-silver-asset-viewer",
   "private": true,
-  "version": "0.2.5",
+  "version": "0.3.0",
   "description": "Eternal Silver Asset Viewer — the desktop app (Tauri 2 + React)",
   "author": "Bash Alarmist",
   "license": "MIT",
