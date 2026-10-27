@@ -1,0 +1,55 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Eternal Silver Asset Viewer",
+  "mainBinaryName": "eternal-silver-asset-viewer",
+  "version": "../package.json",
+  "identifier": "app.eternal-silver.asset-viewer",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1421",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Eternal Silver Asset Viewer",
+        "width": 1440,
+        "height": 900,
+        "resizable": true,
+        "fullscreen": false,
+        "minWidth": 1100,
+        "minHeight": 640
+      }
+    ],
+    "security": {
+      "csp": {
+        "default-src": "'self'",
+        "connect-src": "'self' ipc: http://ipc.localhost http://127.0.0.1:*",
+        "img-src": "'self' data: blob: http://127.0.0.1:*",
+        "media-src": "'self' blob: http://127.0.0.1:*",
+        "style-src": "'self' 'unsafe-inline'",
+        "font-src": "'self' data:"
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "category": "Utility",
+    "shortDescription": "Browse and export the assets of the Lunar games on PlayStation",
+    "longDescription": "Eternal Silver Asset Viewer opens extracted PlayStation discs of the Lunar series and shows what its decoders read out of them: world maps, tilesets, sprites, portraits, TIM images, battle fields and their actors, VAB samples, SEQ sequences with an arrangement view, CD audio, STR movies with their XA sound, the game's strings and the battle tables, each with the code that proves its format.",
+    "copyright": "Copyright (c) 2026 Bash Alarmist",
+    "publisher": "Bash Alarmist",
+    "macOS": {
+      "signingIdentity": "-"
+    }
+  }
+}

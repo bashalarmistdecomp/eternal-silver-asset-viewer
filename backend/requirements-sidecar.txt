@@ -1,0 +1,4 @@
+# For the release bundle's frozen backend (app/scripts/build-sidecar.mjs):
+# the backend's own packages, and the freezer.
+-r requirements.txt
+pyinstaller==6.22.3

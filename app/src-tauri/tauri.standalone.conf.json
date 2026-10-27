@@ -1,0 +1,13 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "bundle": {
+    "externalBin": [
+      "binaries/eternal-silver-asset-viewer-backend"
+    ],
+    "resources": {
+      "../../LICENSE": "LICENSE",
+      "../../NOTICE.md": "NOTICE.md",
+      "notices/THIRD-PARTY-NOTICES.txt": "THIRD-PARTY-NOTICES.txt"
+    }
+  }
+}

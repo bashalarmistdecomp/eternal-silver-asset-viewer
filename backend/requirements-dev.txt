@@ -1,0 +1,4 @@
+# For the checks (docs/development.md, "Checks"): the tests and a lint for unused or undefined names.
+-r requirements.txt
+pytest==8.4.2
+pyflakes==3.2.0

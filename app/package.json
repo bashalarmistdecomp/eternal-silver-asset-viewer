@@ -1,0 +1,41 @@
+{
+  "name": "eternal-silver-asset-viewer",
+  "private": true,
+  "version": "0.2.5",
+  "description": "Eternal Silver Asset Viewer — the desktop app (Tauri 2 + React)",
+  "author": "Bash Alarmist",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint src",
+    "preview": "vite preview",
+    "backend": "python3 ../backend/server.py --port 8765 --token dev",
+    "tauri": "tauri",
+    "app": "tauri dev",
+    "bundle": "node scripts/build-sidecar.mjs && tauri build --config src-tauri/tauri.standalone.conf.json"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.12.1",
+    "@tauri-apps/plugin-dialog": "^2.8.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.50.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tailwind-merge": "^3.7.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@tauri-apps/cli": "^2.12.1",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "oxlint": "^1.86.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.2"
+  }
+}

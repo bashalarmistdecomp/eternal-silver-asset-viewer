@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+/* Warm paper, ink, and one orange. The stage — where pixels and frames
+   are shown — is a dark surface inside the light app, as a music editor's
+   piano roll is. */
+@theme {
+  --color-background: #f5f0eb;
+  --color-foreground: #2c2520;
+  --color-card: #ffffff;
+  --color-card-foreground: #2c2520;
+  --color-primary: #e05a2b;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #ebe5de;
+  --color-secondary-foreground: #5c534a;
+  --color-muted: #f0ebe5;
+  --color-muted-foreground: #8a7f73;
+  --color-accent: #fce8df;
+  --color-accent-foreground: #e05a2b;
+  --color-destructive: #d93025;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #d9d0c7;
+  --color-input: #ebe5de;
+  --color-ring: #e05a2b;
+
+  --color-stage: #1b1a19;
+  --color-stage-raised: #262422;
+  --color-stage-border: #3a3633;
+  --color-stage-foreground: #d9d0c7;
+  --color-stage-muted: #8a7f73;
+
+  --color-ok: #2d8a2d;
+  --color-ok-soft: #e3f1e0;
+  --color-warn: #b7791f;
+  --color-warn-soft: #fbf0d9;
+  --color-info: #2b6cb0;
+  --color-info-soft: #e2ecf7;
+
+  --font-mono: ui-monospace, 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Menlo, Consolas, monospace;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  overflow: hidden;
+}
+
+/* Text a reader may want to copy: documents, info, tables. */
+.selectable,
+.selectable * {
+  user-select: text;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f0ebe5;
+}
+::-webkit-scrollbar-thumb {
+  background: #c4b9ad;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a89a8c;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.stage-scroll::-webkit-scrollbar-track {
+  background: #1b1a19;
+}
+.stage-scroll::-webkit-scrollbar-thumb {
+  background: #3a3633;
+}
+.stage-scroll::-webkit-scrollbar-thumb:hover {
+  background: #4c4743;
+}
+
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Transparency, as image editors show it. */
+.checker {
+  background-color: #2a2826;
+  background-image:
+    linear-gradient(45deg, #34312e 25%, transparent 25%),
+    linear-gradient(-45deg, #34312e 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #34312e 75%),
+    linear-gradient(-45deg, transparent 75%, #34312e 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-fade-in {
+  animation: fade-in 160ms ease-out;
+}
+
+/* The indeterminate bar along the stage's top edge while a selection decodes. */
+@keyframes slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}
+.animate-slide {
+  animation: slide 1s ease-in-out infinite;
+}
+
+/* Syntax colours for the Code tab's C and MIPS asm. */
+.tok-kw {
+  color: #8b46cc;
+}
+.tok-type {
+  color: #2b6cb0;
+}
+.tok-num {
+  color: #b7791f;
+}
+.tok-str {
+  color: #2d8a2d;
+}
+.tok-com {
+  color: #8a7f73;
+  font-style: italic;
+}
+.tok-fn {
+  color: #c53030;
+}
+.tok-reg {
+  color: #2c9a9a;
+}
+.tok-head {
+  color: #e05a2b;
+  font-weight: 600;
+}

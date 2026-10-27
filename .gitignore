@@ -1,0 +1,26 @@
+# Python
+/.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Disc images and anything extracted from them never belong here: the
+# library is a folder outside the repository. These catch a stray one.
+*.bin
+*.cue
+*.iso
+*.img
+*.STR
+*.str
+*.FIL
+library/
+
+# Working notes, measurements and reviews made beside the code: some read the
+# discs, so none of it is ever committed.
+/scratch/
+
+# Editors and systems
+.vscode/
+.idea/
+.DS_Store
+*.swp
