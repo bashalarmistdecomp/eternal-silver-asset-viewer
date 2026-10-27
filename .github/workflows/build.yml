@@ -102,7 +102,17 @@ jobs:
       # -- the bundle: the backend frozen, the notices, the installers
       - name: Bundle
         working-directory: app
-        run: npm run bundle
+        # GitHub's Mac machines now and then fail making the disk image
+        # (v0.3.0's first Intel run did, and passed when run again): a Mac
+        # tries three times, saying each failure, with tauri's --verbose so
+        # the disk image script says why.
+        run: |
+          if [ "$RUNNER_OS" != macOS ]; then exec npm run bundle; fi
+          for try in 1 2 3; do
+            if npm run bundle -- --verbose; then exit 0; fi
+            echo "::warning::the bundle failed on try $try"
+          done
+          exit 1
       - name: The frozen backend runs
         run: python tools/smoke.py app/src-tauri/binaries/eternal-silver-asset-viewer-backend-*
 
