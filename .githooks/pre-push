@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Before a push (docs/release.md): what goes to GitHub is `main` and the
+# release tags, nothing else, and nothing of it rewrites what is there.
+#
+#   - only main and tags v<version>: the local history/* branches and the
+#     branches of work stay on this machine
+#   - main only moves forward, and is never deleted: no force push over
+#     what is published
+#   - main's version moved with what it ships (tools/versions.py)
+#   - a tag names a commit on main, and that commit's version
+#   - the public-safety scans, on a machine that has them (scratch/scans,
+#     kept out of the repository: they read the games' files): nothing of a
+#     game disc in what main gains
+#
+# `git push --no-verify` skips this; don't. Point git at this folder once
+# per clone: git config core.hooksPath .githooks
+set -euo pipefail
+zero=0000000000000000000000000000000000000000
+pushes="$(cat)"
+root="$(git rev-parse --show-toplevel)"
+first="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
+# Git's own environment for the hook names this repository wherever a
+# command runs (pre-commit says why that matters); nothing past here needs it.
+unset $(git rev-parse --local-env-vars)
+cd "$root"
+py=""
+for venv in "$root/.venv" "$first/.venv"; do
+  for exe in bin/python3 Scripts/python.exe; do
+    if [ -z "$py" ] && [ -x "$venv/$exe" ]; then py="$venv/$exe"; fi
+  done
+done
+refuse() { echo "pre-push: $*" >&2; exit 1; }
+version_at() { git show "$1:app/package.json" | sed -n 's/^  "version": "\(.*\)",$/\1/p'; }
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ -n "$remote_ref" ] || continue
+  case "$remote_ref" in
+    refs/heads/main | refs/tags/v*) ;;
+    *) refuse "$remote_ref stays on this machine: only main and the v<version> tags go to GitHub (docs/release.md)" ;;
+  esac
+  [ "$local_sha" != "$zero" ] || refuse "$remote_ref is not deleted from GitHub by a push"
+
+  if [ "$remote_ref" = refs/heads/main ]; then
+    if [ "$remote_sha" != "$zero" ]; then
+      git cat-file -e "$remote_sha^{commit}" 2>/dev/null \
+        || refuse "GitHub's main ($remote_sha) is not here: git fetch, and build on it"
+      git merge-base --is-ancestor "$remote_sha" "$local_sha" \
+        || refuse "main would lose commits GitHub has: published history is not rewritten"
+      if [ -n "$py" ]; then
+        echo "pre-push: the version moved with what main ships since GitHub's"
+        "$py" tools/versions.py --base "$remote_sha"
+      else
+        echo "pre-push: no .venv here: the version check is CI's alone"
+      fi
+      if [ -f "$first/scratch/scans/scan.sh" ]; then
+        echo "pre-push: the public-safety scans over what main gains"
+        sh "$first/scratch/scans/scan.sh" "$local_sha" "$remote_sha" \
+          || refuse "the scans found something of a game disc (above): it is not pushed"
+      else
+        echo "pre-push: no public-safety scans on this machine (scratch/scans)"
+      fi
+    fi
+  else
+    commit="$(git rev-parse "$local_sha^{commit}")"
+    git merge-base --is-ancestor "$commit" refs/heads/main \
+      || refuse "${remote_ref#refs/tags/} names a commit that is not on main"
+    [ "v$(version_at "$commit")" = "${remote_ref#refs/tags/}" ] \
+      || refuse "${remote_ref#refs/tags/} names a commit whose version is $(version_at "$commit")"
+  fi
+done <<<"$pushes"

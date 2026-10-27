@@ -73,6 +73,11 @@ The same runs on one machine: `cd app && npm run bundle`, then
    no bytes, no text.
 5. **Publishing** the draft is the owner's, by hand.
 
+The first time the repository is made public, protect `main`: **Settings →
+Rules → Rulesets**, a ruleset on `main` that blocks force pushes and
+deletion. A private repository on GitHub's free plan cannot have one; until
+then the pre-push hook (docs/development.md, "The hooks") is the guard.
+
 ## Not done
 
 - **Signing.** macOS needs an Apple Developer ID (and notarization) and

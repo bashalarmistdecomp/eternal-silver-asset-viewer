@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# The checks before a commit (docs/development.md, "Checks"), of the parts
+# the commit changes, so that a commit of prose alone is not held up:
+#
+#   backend/              its tests but the disc tests (they read the
+#                         library), pyflakes, the decoders' inventory
+#   tools/                their tests, pyflakes
+#   app/ but src-tauri/   the page's type check and lint
+#   app/src-tauri/        rustfmt and Clippy
+#
+# Docs, every *.md and .github/ run nothing here. CI runs every check on
+# every push (.github/workflows/build.yml); this catches what it would, a
+# few minutes sooner. Point git at this folder once per clone:
+#
+#   git config core.hooksPath .githooks
+set -euo pipefail
+staged="$(git diff --cached --name-only)"
+changed() { (grep -E "$1" | grep -v '\.md$') <<<"$staged" || true; }
+backend="$(changed '^backend/')"
+tools="$(changed '^tools/')"
+page="$( (changed '^app/' | grep -v '^app/src-tauri/') || true)"
+shell="$(changed '^app/src-tauri/')"
+if [ -z "$backend$tools$page$shell" ]; then
+  echo "pre-commit: no code changed; nothing to check"
+  exit 0
+fi
+root="$(git rev-parse --show-toplevel)"
+# a worktree has no .venv of its own: the one beside the main checkout's .git
+first="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
+# Git runs a hook with its own environment set (GIT_DIR, GIT_INDEX_FILE ...),
+# which names this repository and this commit's index wherever a command
+# runs: a test that makes a repository of its own (tools/test_versions.py)
+# would act on this one. Nothing past here needs them.
+unset $(git rev-parse --local-env-vars)
+cd "$root"
+py=""
+for venv in "$root/.venv" "$first/.venv"; do
+  for exe in bin/python3 Scripts/python.exe; do
+    if [ -z "$py" ] && [ -x "$venv/$exe" ]; then py="$venv/$exe"; fi
+  done
+done
+if [ -n "$backend$tools" ] && [ -z "$py" ]; then
+  echo "pre-commit: no .venv to run the checks with (docs/development.md, \"Running it from source\")" >&2
+  exit 1
+fi
+if [ -n "$page$shell" ] && [ ! -d app/node_modules ]; then
+  echo "pre-commit: no app/node_modules: npm ci in app/, first" >&2
+  exit 1
+fi
+
+if [ -n "$backend" ]; then
+  echo "pre-commit: the backend's tests (not the disc tests), pyflakes, the inventory"
+  (cd backend && "$py" -m pytest -q -p no:cacheprovider -m "not disc" \
+     && "$py" -m pyflakes . && "$py" -m decoders.inventory --check)
+fi
+if [ -n "$tools" ]; then
+  echo "pre-commit: the tools' tests, pyflakes"
+  "$py" -m pytest -q -p no:cacheprovider tools
+  "$py" -m pyflakes tools
+fi
+if [ -n "$page" ]; then
+  echo "pre-commit: the page's type check and lint (its errors; CI shows its warnings too)"
+  (cd app && npx tsc -p tsconfig.app.json --noEmit --incremental false \
+     && npx tsc -p tsconfig.node.json --noEmit --incremental false && npm run --silent lint -- --quiet)
+fi
+if [ -n "$shell" ]; then
+  echo "pre-commit: rustfmt and Clippy"
+  # the shell compiles the built page in (tauri.conf.json, frontendDist)
+  if [ ! -d app/dist ]; then (cd app && npm run --silent build); fi
+  (cd app/src-tauri && cargo fmt --check && cargo clippy --locked -- -D warnings)
+fi

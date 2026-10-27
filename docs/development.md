@@ -99,6 +99,22 @@ library. After a merge, on a machine whose library holds the discs, run
 them with `ASSET_VIEWER_REQUIRE_DISCS=1 ../.venv/bin/python3 -m pytest`: a
 disc test the library cannot serve then fails instead of skipping.
 
+### The hooks
+
+`git config core.hooksPath .githooks`, once per clone, points git at the
+repository's hooks:
+
+- **pre-commit** runs the checks of the parts a commit changes: for
+  `backend/` its tests (not the disc tests), pyflakes and the inventory;
+  for `tools/` theirs; for the page its type check and lint; for the shell
+  rustfmt and Clippy. A commit of docs alone runs nothing.
+- **pre-push** lets only `main` and the `v<version>` tags go to GitHub,
+  never a force push or a deletion. It checks that the version moved with
+  what `main` ships, that a tag names a commit on `main` with that version,
+  and, on a machine that has them, runs the public-safety scans.
+
+CI runs every check on every push and pull request, whatever the hooks did.
+
 **Nothing of the games goes in the repository**: no disc image, no file of
 a disc, no bytes copied out of one, no text of the games. A test makes the
 bytes it reads; a comment or a doc says what a format is, not what a disc
